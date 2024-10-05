@@ -8,7 +8,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Routing\RouteContext;
 
-class UsernameVerification
+class UserIdValidation
 {
 
     public function __construct(private UserRepository $repository)
@@ -16,17 +16,20 @@ class UsernameVerification
     }
     public function __invoke(Request $req,  RequestHandler $handler): Response
     {
-        $body = $req->getParsedBody();
+        $user = $req->getAttribute("user");
 
-        $username = $body['username'];
+        $context = RouteContext::fromRequest($req);
 
-        $data = $this->repository->getByUsername($username);
+        $route = $context->getRoute();
 
-        if($data !== false){
+        $user_id = $route->getArgument('id');
+
+        if($user_id !== $user['id']){
             $response = new SlimResponse();
-            $response->getBody()->write(json_encode(['Error' => 'Username already exists']));
+            $response->getBody()->write(json_encode(['Error' => 'Failed user validation, you do not have rights to manage this data']));
             return $response->withStatus(409);
         }
+
 
         return $handler->handle($req);
     }

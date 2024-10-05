@@ -46,14 +46,7 @@ class Users
     {
         $body = $req->getParsedBody();
 
-        $validator = new Validator($body);
 
-        $validator->rule('required', 'username');
-
-        if (!$validator->validate()) {
-            $res->getBody()->write(json_encode($validator->errors()));
-            return $res->withStatus(422);
-        }
 
         $username = $body['username'];
 

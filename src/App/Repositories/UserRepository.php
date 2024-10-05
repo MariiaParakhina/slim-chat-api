@@ -14,21 +14,19 @@ class UserRepository{
 
     }
 
-    public function validateUser(int $id, string $token): bool{
+    public function getToken( string $token): array|bool{
 
-        $sql = 'SELECT * FROM users WHERE id = :id AND token = :token';
+        $sql = 'SELECT * FROM users WHERE   token = :token';
 
         $pdo = $this->database->getConnection();
 
         $stmt = $pdo->prepare($sql);
 
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
         $stmt->bindValue(':token', $token, PDO::PARAM_STR);
 
         $stmt->execute();
 
-        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+        return $stmt->fetch(PDO::FETCH_ASSOC);
 
     }
     public function getAll(): array{

@@ -8,7 +8,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Routing\RouteContext;
 
-class UserVerification
+class TokenValidation
 {
 
     public function __construct(private UserRepository $repository)
@@ -30,13 +30,14 @@ class UserVerification
             return $response->withStatus(401);
         }
 
-        $isValid = $this->repository->validateUser((int) $id, $token);
+        $user = $this->repository->getToken($token);
 
-        if($isValid === false){
+        if($user === false){
             $response = new SlimResponse();
             $response->getBody()->write(json_encode(['Error' => 'User validation failed']));
             return $response->withStatus(401);
         }
+        $req = $req->withAttribute('user_id', $user['id']);
 
         return $handler->handle($req);
     }
