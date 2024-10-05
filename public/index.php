@@ -6,6 +6,7 @@ use App\Controllers\Groups;
 use App\Controllers\Messages;
 use App\Controllers\Users;
 use App\Middleware\AddJsonResponseHandler;
+use App\Middleware\CorsMiddleware;
 use App\Middleware\IsUserInGroup;
 use App\Middleware\UserIdValidation;
 use App\Middleware\ValidateGroupName;
@@ -17,7 +18,6 @@ use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Routing\RouteCollectorProxy;
-
 
 define('APP_ROOT', dirname(__DIR__));
 
@@ -44,6 +44,8 @@ $error_handler = $error_middleware->getDefaultErrorHandler();
 $error_handler->forceContentType("application/json");
 
 $app->add(new AddJsonResponseHandler);
+
+$app->add(new CorsMiddleware);
 
 $app->group('/api', function (RouteCollectorProxy $group) {
 
@@ -118,13 +120,11 @@ $app->group('/api', function (RouteCollectorProxy $group) {
             ->add(VerifyGroupIdExists::class)
             ->add(ValidateToken::class);
 
-        $group->get('/', [Messages::class, 'getAll'])
+        $group->get('', [Messages::class, 'getAll'])
             ->add(ValidateUserInGroup::class)
             ->add(IsUserInGroup::class)
             ->add(VerifyGroupIdExists::class)
             ->add(ValidateToken::class);
-
-
     });
 
 

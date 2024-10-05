@@ -16,9 +16,9 @@ class Messages
 
     public function getAll(Request $req, Response $res): Response
     {
-        $body = $req->getParsedBody();
+        $queryParams = $req->getQueryParams();
 
-        $group_id = $body['group_id'];
+        $group_id = $queryParams['group_id'];
 
         $data = $this->repository->getAll((int)$group_id);
 
@@ -35,7 +35,9 @@ class Messages
 
         $content = $body['content'];
 
-        $group_id = $body['group_id'];
+        $queryParams = $req->getQueryParams();
+
+        $group_id = $queryParams['group_id'];
 
         $id = $this->repository->create(group_id: $group_id, user_id: $user_id, content: $content);
 

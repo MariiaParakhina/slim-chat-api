@@ -17,13 +17,15 @@ class IsUserInGroup
     public function __invoke(Request $req, RequestHandler $handler): Response
     {
         $context = RouteContext::fromRequest($req);
+
         $route = $context->getRoute();
 
         $id = $route->getArgument('id');
 
         if (!$id) {
-            $parsedBody = $req->getParsedBody();
-            $id = $parsedBody['group_id'] ?? null;
+            $queryParams = $req->getQueryParams();
+
+            $id = $queryParams['group_id'];
         }
 
         $user_id = $req->getAttribute('user_id');

@@ -23,8 +23,8 @@ class VerifyGroupIdExists
         $id = $route->getArgument('id');
 
         if (!$id) {
-            $parsedBody = $req->getParsedBody();
-            $id = $parsedBody['group_id'] ?? null;
+            $queryParams = $req->getQueryParams();
+            $id = $queryParams['group_id'];
         }
 
         if (!$id || !$this->repository->getById((int)$id)) {
