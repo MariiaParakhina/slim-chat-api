@@ -1,13 +1,13 @@
 {
-    "require": {
-        "slim/slim": "^4.14",
-        "vlucas/valitron": "^1.4",
-        "php-di/php-di": "^7.0",
-        "slim/psr7": "^1.7"
-    },
-    "autoload":{
-        "psr-4":{
-            "":"src/"
-        }
+  "require": {
+    "slim/slim": "^4.14",
+    "vlucas/valitron": "^1.4",
+    "php-di/php-di": "^7.0",
+    "slim/psr7": "^1.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
     }
+  }
 }

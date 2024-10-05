@@ -3,17 +3,19 @@
 declare(strict_types=1);
 
 namespace App\Repositories;
+
 use App\Database;
 use PDO;
 
 class MessageRepository
 {
-
     public function __construct(private Database $database)
     {
 
     }
-    public function getAll(int $group_id): array{
+
+    public function getAll(int $group_id): array
+    {
         $sql = 'SELECT messages.id, messages.content, messages.created_at, users.username
                 FROM messages
                 JOIN users ON messages.user_id = users.id
@@ -53,8 +55,8 @@ class MessageRepository
     }
 
 
-
-    public function update(int $id, string $content): int{
+    public function update(int $id, string $content): int
+    {
         $sql = 'UPDATE messages SET content = :content WHERE id = :id';
 
         $pdo = $this->database->getConnection();
@@ -70,7 +72,8 @@ class MessageRepository
         return $stmt->rowCount();
     }
 
-    public function delete(int $id): int {
+    public function delete(int $id): int
+    {
         $sql = 'DELETE FROM messages WHERE id = :id';
 
         $pdo = $this->database->getConnection();

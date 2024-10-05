@@ -8,13 +8,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Routing\RouteContext;
-use Valitron\Validator;
 
-class VerifyGroupIdExists{
+class VerifyGroupIdExists
+{
     public function __construct(private GroupRepository $repository)
     {
     }
-    public function __invoke(Request $req, RequestHandler $handler): Response {
+
+    public function __invoke(Request $req, RequestHandler $handler): Response
+    {
         $context = RouteContext::fromRequest($req);
         $route = $context->getRoute();
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Middleware;
 
 use App\Repositories\UserRepository;
@@ -14,7 +15,8 @@ class ValidateToken
     public function __construct(private UserRepository $repository)
     {
     }
-    public function __invoke(Request $req,  RequestHandler $handler): Response
+
+    public function __invoke(Request $req, RequestHandler $handler): Response
     {
         $context = RouteContext::fromRequest($req);
 
@@ -32,7 +34,7 @@ class ValidateToken
 
         $user = $this->repository->getToken($token);
 
-        if($user === false){
+        if ($user === false) {
             $response = new SlimResponse();
             $response->getBody()->write(json_encode(['Error' => 'User validation failed']));
             return $response->withStatus(401);

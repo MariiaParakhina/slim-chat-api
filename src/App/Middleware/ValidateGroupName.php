@@ -10,11 +10,13 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 use Valitron\Validator;
 
-class ValidateGroupName{
+class ValidateGroupName
+{
     public function __construct(private GroupRepository $repository)
     {
     }
-    public function __invoke(Request $req,  RequestHandler $handler): Response
+
+    public function __invoke(Request $req, RequestHandler $handler): Response
     {
         $body = $req->getParsedBody();
 
@@ -32,7 +34,7 @@ class ValidateGroupName{
 
         $data = $this->repository->getByName($name);
 
-        if ($data!==false) {
+        if ($data !== false) {
             $res = new SlimResponse();
             $res->getBody()->write(json_encode(['Error' => 'This group name is already taken']));
             return $res->withStatus(422);

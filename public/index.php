@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 use App\Controllers\Groups;
 use App\Controllers\Messages;
-use App\Middleware\AddJsonResponseHandler;
-use App\Middleware\ValidateUserInGroup;
-use Slim\Factory\AppFactory;
-use DI\ContainerBuilder;
-use Slim\Routing\RouteCollectorProxy;
-use Slim\Handlers\Strategies\RequestResponseArgs;
 use App\Controllers\Users;
-use App\Middleware\ValidateUsername;
-use App\Middleware\ValidateToken;
+use App\Middleware\AddJsonResponseHandler;
+use App\Middleware\IsUserInGroup;
 use App\Middleware\UserIdValidation;
 use App\Middleware\ValidateGroupName;
-use App\Middleware\IsUserInGroup;
+use App\Middleware\ValidateToken;
+use App\Middleware\ValidateUserInGroup;
+use App\Middleware\ValidateUsername;
 use App\Middleware\VerifyGroupIdExists;
+use DI\ContainerBuilder;
+use Slim\Factory\AppFactory;
+use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Routing\RouteCollectorProxy;
 
 
 define('APP_ROOT', dirname(__DIR__));
@@ -45,10 +45,9 @@ $error_handler->forceContentType("application/json");
 
 $app->add(new AddJsonResponseHandler);
 
-$app->group('/api', function(RouteCollectorProxy $group) {
+$app->group('/api', function (RouteCollectorProxy $group) {
 
-    $group->group('/users', function(RouteCollectorProxy $group)
-    {
+    $group->group('/users', function (RouteCollectorProxy $group) {
         $group->get('', [Users::class, 'getAll']);
 
         $group->get('/{id}', [Users::class, 'getById']);
@@ -65,8 +64,7 @@ $app->group('/api', function(RouteCollectorProxy $group) {
             ->add(ValidateToken::class);
     });
 
-    $group->group('/groups', function(RouteCollectorProxy $group)
-    {
+    $group->group('/groups', function (RouteCollectorProxy $group) {
         $group->get('', [Groups::class, 'getAll'])->add(ValidateToken::class);
 
         $group->get('/{id}', [Groups::class, 'getById']);
@@ -101,7 +99,7 @@ $app->group('/api', function(RouteCollectorProxy $group) {
 
     });
 
-    $group->group('/messages', function(RouteCollectorProxy $group) {
+    $group->group('/messages', function (RouteCollectorProxy $group) {
         $group->post('', [Messages::class, 'create'])
             ->add(ValidateUserInGroup::class)
             ->add(IsUserInGroup::class)
@@ -128,8 +126,6 @@ $app->group('/api', function(RouteCollectorProxy $group) {
 
 
     });
-
-
 
 
 });

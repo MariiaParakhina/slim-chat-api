@@ -15,7 +15,8 @@ class ValidateUsername
     public function __construct(private UserRepository $repository)
     {
     }
-    public function __invoke(Request $req,  RequestHandler $handler): Response
+
+    public function __invoke(Request $req, RequestHandler $handler): Response
     {
         $body = $req->getParsedBody();
 
@@ -33,7 +34,7 @@ class ValidateUsername
 
         $data = $this->repository->getByUsername($username);
 
-        if($data !== false){
+        if ($data !== false) {
             $res = new SlimResponse();
             $res->getBody()->write(json_encode(['Error' => 'Username already exists']));
             return $res->withStatus(403);

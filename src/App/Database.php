@@ -6,7 +6,8 @@ namespace App;
 
 use PDO;
 
-class Database{
+class Database
+{
 
     public function __construct(private string $host,
                                 private string $dbname,

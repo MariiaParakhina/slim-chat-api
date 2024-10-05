@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\UserRepository;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Routing\RouteContext;
-use Valitron\Validator;
 
 class Users
 {
     public function __construct(private UserRepository $repository)
     {
     }
-    public function getAll(Request $req, Response $res):Response
+
+    public function getAll(Request $req, Response $res): Response
     {
 
         $data = $this->repository->getAll();
@@ -27,11 +26,12 @@ class Users
 
         return $res;
     }
+
     public function getById(Request $req, Response $res, string $id): Response
     {
-        $data = $this->repository->getById((int) $id);
+        $data = $this->repository->getById((int)$id);
 
-        if($data === false){
+        if ($data === false) {
             throw new HttpNotFoundException($req);
         }
 
@@ -55,7 +55,7 @@ class Users
         $responseBody = json_encode([
             'message' => 'User created',
             'id' => $id,
-            'token'=> $token
+            'token' => $token
         ]);
 
         $res->getBody()->write($responseBody);
@@ -69,7 +69,7 @@ class Users
 
         $username = $body['username'];
 
-        $rows = $this->repository->update((int) $id, $username);
+        $rows = $this->repository->update((int)$id, $username);
 
         $responseBody = json_encode([
             'message' => 'Username updated',
