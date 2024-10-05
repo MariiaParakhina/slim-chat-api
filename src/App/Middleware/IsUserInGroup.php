@@ -8,12 +8,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Routing\RouteContext;
-use Valitron\Validator;
 
-class VerifyGroupIdExists{
-    public function __construct(private GroupRepository $repository)
-    {
+class IsUserInGroup {
+    public function __construct(private GroupRepository $repository) {
     }
+
     public function __invoke(Request $req, RequestHandler $handler): Response {
         $context = RouteContext::fromRequest($req);
         $route = $context->getRoute();
@@ -25,11 +24,11 @@ class VerifyGroupIdExists{
             $id = $parsedBody['group_id'] ?? null;
         }
 
-        if (!$id || !$this->repository->getById((int)$id)) {
-            $res = new SlimResponse();
-            $res->getBody()->write(json_encode(['Error' => 'This group does not exist']));
-            return $res->withStatus(422);
-        }
+        $user_id = $req->getAttribute('user_id');
+
+        $is_user_in_group = $this->repository->isUserInGroup((int) $id, (int) $user_id);
+
+        $req = $req->withAttribute("is_user_in_group", $is_user_in_group);
 
         return $handler->handle($req);
     }

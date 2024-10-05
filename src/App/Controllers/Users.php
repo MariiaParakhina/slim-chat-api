@@ -46,8 +46,6 @@ class Users
     {
         $body = $req->getParsedBody();
 
-
-
         $username = $body['username'];
 
         $token = bin2hex(random_bytes(16));
@@ -68,6 +66,7 @@ class Users
     public function update(Request $req, Response $res, string $id): Response
     {
         $body = $req->getParsedBody();
+
         $username = $body['username'];
 
         $rows = $this->repository->update((int) $id, $username);

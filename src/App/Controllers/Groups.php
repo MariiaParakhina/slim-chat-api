@@ -19,7 +19,9 @@ class Groups
     }
     public function getAll(Request $req, Response $res): Response{
         $data = $this->repository->getAll();
+
         $res->getBody()->write(json_encode($data));
+
         return $res;
     }
     public function getById(Request $req, Response $res, string $id): Response
@@ -40,13 +42,6 @@ class Groups
 
         $name = $body['name'];
 
-        $is_group_exist = $req->getAttribute('is_group_exist');
-
-        if($is_group_exist){
-            $res->getBody()->write(json_encode(['Error' => 'This group name already exists']));
-            return $res->withStatus(403);
-        }
-
         $id = $this->repository->create($name);
 
         $rows = $this->repository->addUserToGroup((int)$id, (int)$user_id);
@@ -55,8 +50,7 @@ class Groups
             'message' => 'Group created',
             'id' => $id,
             'note'=> "you have been added to the group",
-            'rows affected' => $rows,
-
+            'rows affected' => $rows
         ]);
 
         $res->getBody()->write($responseBody);
@@ -70,7 +64,6 @@ class Groups
         $is_user_in_group = $req->getAttribute('is_user_in_group');
 
         if($is_user_in_group){
-
             $res->getBody()->write(json_encode(["Error"=>"User is already in a group"]));
             return $res->withStatus(422);
         }
@@ -89,14 +82,6 @@ class Groups
 
     public function leave(Request $req, Response $res, string $id): Response{
         $user_id = $req->getAttribute('user_id');
-
-        $is_user_in_group = $req->getAttribute('is_user_in_group');
-
-        if(!$is_user_in_group){
-
-            $res->getBody()->write(json_encode(["Error"=>"User is not in this group"]));
-            return $res->withStatus(422);
-        }
 
         $rows = $this->repository->deleteUserFromGroup((int)$id, (int)$user_id);
 
