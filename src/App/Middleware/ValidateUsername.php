@@ -9,7 +9,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 use Valitron\Validator;
 
-class UsernameValidation
+class ValidateUsername
 {
 
     public function __construct(private UserRepository $repository)

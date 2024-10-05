@@ -68,16 +68,6 @@ class Users
     public function update(Request $req, Response $res, string $id): Response
     {
         $body = $req->getParsedBody();
-
-        $validator = new Validator($body);
-
-        $validator->rule('required', 'username');
-
-        if (!$validator->validate()) {
-            $res->getBody()->write(json_encode($validator->errors()));
-            return $res->withStatus(422);
-        }
-
         $username = $body['username'];
 
         $rows = $this->repository->update((int) $id, $username);

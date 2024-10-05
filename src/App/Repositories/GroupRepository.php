@@ -139,5 +139,35 @@ class GroupRepository
         return $stmt->rowCount();
     }
 
+    public function update(int $id, string $name): int{
+        $sql = 'UPDATE groups SET name = :name WHERE id = :id';
+
+        $pdo = $this->database->getConnection();
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+
+        $stmt->execute();
+
+        return $stmt->rowCount();
+    }
+
+    public function delete(int $group_id): int {
+        $sql = 'DELETE FROM groups WHERE id = :group_id';
+
+        $pdo = $this->database->getConnection();
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':group_id', $group_id, PDO::PARAM_INT   );
+
+        $stmt->execute();
+
+        return $stmt->rowCount();
+    }
+
 
 }

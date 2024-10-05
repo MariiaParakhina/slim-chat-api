@@ -9,11 +9,13 @@ use DI\ContainerBuilder;
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use App\Controllers\Users;
-use App\Middleware\UsernameValidation;
-use App\Middleware\TokenValidation;
+use App\Middleware\ValidateUsername;
+use App\Middleware\ValidateToken;
 use App\Middleware\UserIdValidation;
 use App\Middleware\ValidateGroupName;
 use App\Middleware\ValidateUserInGroup;
+use App\Middleware\VerifyGroupIdExists;
+
 
 define('APP_ROOT', dirname(__DIR__));
 
@@ -43,31 +45,57 @@ $app->add(new AddJsonResponseHandler);
 
 $app->group('/api', function(RouteCollectorProxy $group) {
 
-    $group->group('/users', function(RouteCollectorProxy $group) {
+    $group->group('/users', function(RouteCollectorProxy $group)
+    {
         $group->get('', [Users::class, 'getAll']);
+
         $group->get('/{id}', [Users::class, 'getById']);
-        $group->post('', [Users::class, 'create'])->add(UsernameValidation::class);
 
-        $group->patch('/{id}', [Users::class, 'update'])->add(TokenValidation::class);
-        $group->delete('/{id}', [Users::class, 'delete'])->add(UserIdValidation::class)->add(TokenValidation::class);
+        $group->post('', [Users::class, 'create'])
+            ->add(ValidateUsername::class);
+
+        $group->patch('/{id}', [Users::class, 'update'])
+            ->add(ValidateUsername::class)
+            ->add(ValidateToken::class);
+
+        $group->delete('/{id}', [Users::class, 'delete'])
+            ->add(UserIdValidation::class)
+            ->add(ValidateToken::class);
     });
-// note add something to validate that group exists
-    // note to change all middleware to the same structure naming
-    $group->group('/groups', function(RouteCollectorProxy $group) {
-        $group->get('', [Groups::class, 'getAll'])->add(TokenValidation::class);
-        $group->get('/{id}', [Groups::class, 'getById']);
-        $group->post('', [Groups::class, 'create'])->add(ValidateGroupName::class)->add(TokenValidation::class);
-        // todo
-        $group->patch('/{id}', [Groups::class, 'update']);
-        $group->delete('/{id}', [Groups::class, 'delete']);
+    
+    $group->group('/groups', function(RouteCollectorProxy $group)
+    {
+        $group->get('', [Groups::class, 'getAll'])->add(ValidateToken::class);
 
-        $group->post('/{id}/join', [Groups::class, 'join'])->add(ValidateUserInGroup::class)->add(TokenValidation::class);
-        $group->post('/{id}/leave', [Groups::class, 'leave'])->add(ValidateUserInGroup::class)->add(TokenValidation::class);
+        $group->get('/{id}', [Groups::class, 'getById']);
+
+        $group->post('', [Groups::class, 'create'])
+            ->add(ValidateGroupName::class)
+            ->add(ValidateToken::class);
+
+        $group->patch('/{id}', [Groups::class, 'update'])
+            ->add(ValidateGroupName::class)
+            ->add(VerifyGroupIdExists::class)
+            ->add(ValidateToken::class);
+
+        $group->delete('/{id}', [Groups::class, 'delete'])
+            ->add(VerifyGroupIdExists::class)
+            ->add(ValidateToken::class);
+
+        $group->post('/{id}/join', [Groups::class, 'join'])
+            ->add(ValidateUserInGroup::class)
+            ->add(VerifyGroupIdExists::class)
+            ->add(ValidateToken::class);
+
+        $group->post('/{id}/leave', [Groups::class, 'leave'])
+            ->add(VerifyGroupIdExists::class)
+            ->add(ValidateUserInGroup::class)
+            ->add(ValidateToken::class);
 
     });
 
     $group->group('/messages', function(RouteCollectorProxy $group) {
-      //  $group->post('', [Messages::class, 'create'])->add(TokenValidation::class);
+      //  $group->post('', [Messages::class, 'create'])->add(ValidateToken::class);
 
     });
 

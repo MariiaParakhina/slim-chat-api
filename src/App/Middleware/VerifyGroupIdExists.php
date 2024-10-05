@@ -2,45 +2,34 @@
 
 namespace App\Middleware;
 
-
 use App\Repositories\GroupRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
+use Slim\Routing\RouteContext;
 use Valitron\Validator;
 
-class ValidateGroupName{
+class VerifyGroupIdExists{
     public function __construct(private GroupRepository $repository)
     {
     }
     public function __invoke(Request $req,  RequestHandler $handler): Response
     {
-        $body = $req->getParsedBody();
+        $context = RouteContext::fromRequest($req);
 
-        $validator = new Validator($body);
+        $route = $context->getRoute();
 
-        $validator->rule('required', 'name');
+        $id = $route->getArgument('id');
 
-        if (!$validator->validate()) {
+        $data = $this->repository->getById((int)$id);
+
+        if($data === False){
             $res = new SlimResponse();
-            $res->getBody()->write(json_encode($validator->errors()));
+            $res->getBody()->write(json_encode(['Error' => 'This group does not exists']));
             return $res->withStatus(422);
         }
-
-        $name = $body['name'];
-
-        $data = $this->repository->getByName($name);
-
-        if ($data!==false) {
-            $res = new SlimResponse();
-            $res->getBody()->write(json_encode(['Error' => 'This group name is already taken']));
-            return $res->withStatus(422);
-        }
-
 
         return $handler->handle($req);
-
     }
-
 }

@@ -40,8 +40,14 @@ class Groups
 
         $name = $body['name'];
 
-        $id = $this->repository->create($name);
+        $is_group_exist = $req->getAttribute('is_group_exist');
 
+        if($is_group_exist){
+            $res->getBody()->write(json_encode(['Error' => 'This group name already exists']));
+            return $res->withStatus(403);
+        }
+
+        $id = $this->repository->create($name);
 
         $rows = $this->repository->addUserToGroup((int)$id, (int)$user_id);
 
@@ -98,6 +104,36 @@ class Groups
             'message' => 'user have left the group',
             'rows affected' => $rows,
 
+        ]);
+
+        $res->getBody()->write($responseBody);
+
+        return $res;
+    }
+
+    public function delete(Request $req, Response $res, string $id): Response
+    {
+        $rows = $this->repository->delete((int)$id);
+
+        $responseBody = json_encode([
+            'message' => 'Group was deleted',
+            'rows' => $rows,]);
+
+        $res->getBody()->write($responseBody);
+
+        return $res;
+    }
+
+    public function update(Request $req, Response $res, string $id): Response
+    {
+        $body = $req->getParsedBody();
+        $username = $body['name'];
+
+        $rows = $this->repository->update((int) $id, $username);
+
+        $responseBody = json_encode([
+            'message' => 'name updated',
+            'rows' => $rows,
         ]);
 
         $res->getBody()->write($responseBody);
