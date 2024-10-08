@@ -1,0 +1,34 @@
+# Ignore Composer dependencies
+/vendor/*
+
+# Ignore PHPUnit result cache
+.phpunit.result.cache
+
+# Ignore IDE specific files
+/.idea/
+/*.iml
+
+# Ignore environment variables
+.env
+
+# Ignore log files
+/logs/
+/*.log
+
+# Ignore cache files
+/cache/
+/*.cache
+
+# Ignore temporary files
+/tmp/
+/*.tmp
+
+# Ignore compiled code
+/build/
+/*.o
+/*.a
+/*.out
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db

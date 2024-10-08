@@ -74,7 +74,7 @@ class UserRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function create(string $username, string $token): string
+    public function create(string $username, string $token): int
     {
         $sql = 'INSERT INTO users (username, token ) VALUES (:username, :token)';
 
@@ -88,7 +88,7 @@ class UserRepository
 
         $stmt->execute();
 
-        return $pdo->lastInsertId();
+        return (int)$pdo->lastInsertId();
     }
 
     public function update(int $id, string $username): int

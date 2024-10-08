@@ -2,21 +2,40 @@
 <html>
 <head>
     <title>WebSocket Chat</title>
+    <style>
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            height: 400px;
+            overflow-y: scroll;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message .content {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 <div id="chat-box"></div>
 
 <script>
     var conn = new WebSocket('ws://localhost:8083/chat');
+
     conn.onopen = function(e) {
         console.log("Connection established!");
     };
 
     conn.onmessage = function(e) {
         var chatBox = document.getElementById('chat-box');
+        var messageData = JSON.parse(e.data);
         var message = document.createElement('div');
-        message.textContent = e.data;
+        message.classList.add('message');
+        message.innerHTML = '<span class="content">' + messageData.content + '</span>';
         chatBox.appendChild(message);
+        chatBox.scrollTop = chatBox.scrollHeight;
     };
 </script>
 </body>

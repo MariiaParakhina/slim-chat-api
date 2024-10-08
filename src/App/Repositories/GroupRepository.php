@@ -76,7 +76,7 @@ class GroupRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function create(string $name): string
+    public function create(string $name): int
     {
         $sql = 'INSERT INTO groups (name) VALUES (:name)';
 
@@ -88,7 +88,7 @@ class GroupRepository
 
         $stmt->execute();
 
-        return $pdo->lastInsertId();
+        return (int)$pdo->lastInsertId();
     }
 
     public function isUserInGroup(int $group_id, int $user_id): int
