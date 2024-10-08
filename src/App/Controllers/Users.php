@@ -17,14 +17,9 @@ class Users
 
     public function getAll(Request $req, Response $res): Response
     {
-
         $data = $this->repository->getAll();
 
-        $body = json_encode($data);
-
-        $res->getBody()->write($body);
-
-        return $res;
+        return $this->jsonResponse($res, $data);
     }
 
     public function getById(Request $req, Response $res, string $id): Response
@@ -35,11 +30,7 @@ class Users
             throw new HttpNotFoundException($req);
         }
 
-        $body = json_encode($data);
-
-        $res->getBody()->write($body);
-
-        return $res;
+        return $this->jsonResponse($res, $data);
     }
 
     public function create(Request $req, Response $res): Response
@@ -52,15 +43,11 @@ class Users
 
         $id = $this->repository->create($username, $token);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'User created',
             'id' => $id,
             'token' => $token
-        ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res->withStatus(201);
+        ], 201);
     }
 
     public function update(Request $req, Response $res, string $id): Response
@@ -71,26 +58,26 @@ class Users
 
         $rows = $this->repository->update((int)$id, $username);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'Username updated',
             'rows' => $rows,
         ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
     }
 
     public function delete(Request $req, Response $res, string $id): Response
     {
         $rows = $this->repository->delete((int)$id);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'User deleted',
-            'rows' => $rows,]);
+            'rows' => $rows,
+        ]);
+    }
 
-        $res->getBody()->write($responseBody);
+    private function jsonResponse(Response $res, array $data, int $status = 200): Response
+    {
+        $res->getBody()->write(json_encode($data));
 
-        return $res;
+        return $res->withStatus($status);
     }
 }

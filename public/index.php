@@ -48,7 +48,16 @@ $app->add(new AddJsonResponseHandler);
 $app->add(new CorsMiddleware);
 
 $app->group('/api', function (RouteCollectorProxy $group) {
+    registerUserRoutes($group);
 
+    registerGroupRoutes($group);
+
+    registerMessageRoutes($group);
+});
+
+$app->run();
+
+function registerUserRoutes(RouteCollectorProxy $group): void {
     $group->group('/users', function (RouteCollectorProxy $group) {
         $group->get('', [Users::class, 'getAll']);
 
@@ -65,7 +74,9 @@ $app->group('/api', function (RouteCollectorProxy $group) {
             ->add(UserIdValidation::class)
             ->add(ValidateToken::class);
     });
+}
 
+function registerGroupRoutes(RouteCollectorProxy $group): void {
     $group->group('/groups', function (RouteCollectorProxy $group) {
         $group->get('', [Groups::class, 'getAll'])->add(ValidateToken::class);
 
@@ -98,10 +109,12 @@ $app->group('/api', function (RouteCollectorProxy $group) {
             ->add(IsUserInGroup::class)
             ->add(VerifyGroupIdExists::class)
             ->add(ValidateToken::class);
-
     });
+}
 
+function registerMessageRoutes(RouteCollectorProxy $group): void {
     $group->group('/messages', function (RouteCollectorProxy $group) {
+
         $group->post('', [Messages::class, 'create'])
             ->add(ValidateUserInGroup::class)
             ->add(IsUserInGroup::class)
@@ -126,8 +139,4 @@ $app->group('/api', function (RouteCollectorProxy $group) {
             ->add(VerifyGroupIdExists::class)
             ->add(ValidateToken::class);
     });
-
-
-});
-
-$app->run();
+}

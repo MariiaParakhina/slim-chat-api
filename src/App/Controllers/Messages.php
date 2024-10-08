@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Repositories\MessageRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use WebSocket\Client;
 
 class Messages
 {
@@ -16,15 +17,11 @@ class Messages
 
     public function getAll(Request $req, Response $res): Response
     {
-        $queryParams = $req->getQueryParams();
+        $group_id = (int)$req->getQueryParams()['group_id'];
 
-        $group_id = $queryParams['group_id'];
+        $data = $this->repository->getAll($group_id);
 
-        $data = $this->repository->getAll((int)$group_id);
-
-        $res->getBody()->write(json_encode($data));
-
-        return $res;
+        return $this->jsonResponse($res, $data);
     }
 
     public function create(Request $req, Response $res): Response
@@ -35,50 +32,56 @@ class Messages
 
         $content = $body['content'];
 
-        $queryParams = $req->getQueryParams();
-
-        $group_id = $queryParams['group_id'];
+        $group_id = (int)$req->getQueryParams()['group_id'];
 
         $id = $this->repository->create(group_id: $group_id, user_id: $user_id, content: $content);
 
-        $responseBody = json_encode([
-            'message' => 'Message sent!',
-            'id' => $id
+        $this->sendWebSocketMessage([
+            "user_id" => $user_id,
+            'group_id' => $group_id,
+            'message_id' => $id,
+            'content' => $content,
         ]);
 
-        $res->getBody()->write($responseBody);
-
-        return $res->withStatus(201);
+        return $this->jsonResponse($res, [
+            'message' => 'Message sent!',
+            'id' => $id
+        ], 201);
     }
 
     public function delete(Request $req, Response $res, string $id): Response
     {
         $rows = $this->repository->delete((int)$id);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'Message was deleted',
-            'rows' => $rows,]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
+            'rows' => $rows,
+        ]);
     }
 
     public function update(Request $req, Response $res, string $id): Response
     {
-        $body = $req->getParsedBody();
-        $content = $body['content'];
+        $content = $req->getParsedBody()['content'];
 
         $rows = $this->repository->update((int)$id, $content);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'Message updated',
             'rows' => $rows,
         ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
     }
 
+    private function jsonResponse(Response $res, array $data, int $status = 200): Response
+    {
+        $res->getBody()->write(json_encode($data));
+
+        return $res->withStatus($status);
+    }
+
+    private function sendWebSocketMessage(array $message): void
+    {
+        $client = new Client("ws://localhost:8083/chat");
+
+        $client->send(json_encode($message));
+    }
 }

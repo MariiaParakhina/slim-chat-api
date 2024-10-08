@@ -1,86 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Application</title>
+    <title>WebSocket Chat</title>
 </head>
 <body>
-<h1>Chat Application</h1>
-<div id="groupSelect">
-    <label>Select Group:</label>
-</div>
-<div id="messages"></div>
+<div id="chat-box"></div>
 
 <script>
-    const userToken = 'd183a06fa5ce784e06b848a06b382e82'; // Hardcoded
-    let groupId = null;
+    var conn = new WebSocket('ws://localhost:8083/chat');
+    conn.onopen = function(e) {
+        console.log("Connection established!");
+    };
 
-    async function fetchGroups() {
-        const response = await fetch('http://chatapi.localhost/api/groups', {
-            headers: {
-                'Authorization': `${userToken}`
-            }
-        });
-        const groups = await response.json();
-        populateGroupRadioButtons(groups);
-    }
-
-    function populateGroupRadioButtons(groups) {
-        const groupSelectDiv = document.getElementById('groupSelect');
-        groups.forEach(group => {
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'group';
-            radio.value = group.id;
-            radio.id = `group-${group.id}`;
-
-            const label = document.createElement('label');
-            label.htmlFor = `group-${group.id}`;
-            label.textContent = group.name;
-
-            groupSelectDiv.appendChild(radio);
-            groupSelectDiv.appendChild(label);
-            groupSelectDiv.appendChild(document.createElement('br'));
-        });
-    }
-
-    async function fetchMessages() {
-        if (!groupId) return;
-        try {
-            const response = await fetch(`http://chatapi.localhost/api/messages?group_id=${groupId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `${userToken}`
-                }
-            });
-            const messages = await response.json();
-            displayMessages(messages);
-        } catch (error) {
-            console.error('Network error:', error);
-        }
-    }
-
-    function displayMessages(messages) {
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = '';
-        messages.forEach(message => {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = `${message.username}: ${message.content} [${message.created_at}]`;
-            messagesDiv.appendChild(messageElement);
-        });
-    }
-
-    document.getElementById('groupSelect').addEventListener('change', (event) => {
-        if (event.target.name === 'group') {
-            groupId = event.target.value;
-            fetchMessages();
-        }
-    });
-
-    setInterval(fetchMessages, 5000);
-
-    fetchGroups();
+    conn.onmessage = function(e) {
+        var chatBox = document.getElementById('chat-box');
+        var message = document.createElement('div');
+        message.textContent = e.data;
+        chatBox.appendChild(message);
+    };
 </script>
 </body>
 </html>

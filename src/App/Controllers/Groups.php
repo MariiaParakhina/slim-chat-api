@@ -18,20 +18,14 @@ class Groups
     {
         $data = $this->repository->getAll();
 
-        $res->getBody()->write(json_encode($data));
-
-        return $res;
+        return $this->jsonResponse($res, $data);
     }
 
     public function getById(Request $req, Response $res, string $id): Response
     {
         $data = $this->repository->getById((int)$id);
 
-        $body = json_encode($data);
-
-        $res->getBody()->write($body);
-
-        return $res;
+        return $this->jsonResponse($res, $data);
     }
 
     public function create(Request $req, Response $res): Response
@@ -46,16 +40,12 @@ class Groups
 
         $rows = $this->repository->addUserToGroup((int)$id, (int)$user_id);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'Group created',
             'id' => $id,
             'note' => "You have been added to the group",
             'rows affected' => $rows
-        ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res->withStatus(201);
+        ], 201);
     }
 
     public function join(Request $req, Response $res, string $id): Response
@@ -65,20 +55,16 @@ class Groups
         $is_user_in_group = $req->getAttribute('is_user_in_group');
 
         if ($is_user_in_group) {
-            $res->getBody()->write(json_encode(["Error" => "User is already in a group"]));
-            return $res->withStatus(422);
+
+            return $this->jsonResponse($res, ["Error" => "User is already in a group"], 422);
         }
 
         $rows = $this->repository->addUserToGroup((int)$id, (int)$user_id);
 
-        $responseBody = json_encode([
-            'message' => 'you have been added to the group',
+        return $this->jsonResponse($res, [
+            'message' => 'You have been added to the group',
             'rows affected' => $rows,
         ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
     }
 
     public function leave(Request $req, Response $res, string $id): Response
@@ -87,45 +73,40 @@ class Groups
 
         $rows = $this->repository->deleteUserFromGroup((int)$id, (int)$user_id);
 
-        $responseBody = json_encode([
-            'message' => 'User have left the group',
+        return $this->jsonResponse($res, [
+            'message' => 'User has left the group',
             'rows affected' => $rows,
-
         ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
     }
 
     public function delete(Request $req, Response $res, string $id): Response
     {
         $rows = $this->repository->delete((int)$id);
 
-        $responseBody = json_encode([
+        return $this->jsonResponse($res, [
             'message' => 'Group was deleted',
-            'rows' => $rows,]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
+            'rows' => $rows,
+        ]);
     }
 
     public function update(Request $req, Response $res, string $id): Response
     {
         $body = $req->getParsedBody();
-        $username = $body['name'];
 
-        $rows = $this->repository->update((int)$id, $username);
+        $name = $body['name'];
 
-        $responseBody = json_encode([
+        $rows = $this->repository->update((int)$id, $name);
+
+        return $this->jsonResponse($res, [
             'message' => 'Group name was updated',
             'rows' => $rows,
         ]);
-
-        $res->getBody()->write($responseBody);
-
-        return $res;
     }
 
+    private function jsonResponse(Response $res, array $data, int $status = 200): Response
+    {
+        $res->getBody()->write(json_encode($data));
+
+        return $res->withStatus($status);
+    }
 }
